@@ -2,7 +2,7 @@
   "name": "ethereum-blockies",
   "version": "0.1.1",
   "description": "A tiny library for generating blocky identicons.",
-  "main": "blockies.js",
+  "main": "react-component.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
