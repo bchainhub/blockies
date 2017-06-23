@@ -1,3 +1,6 @@
+import PNG from './png'
+import hsl2rgb from './hsl2rgb'
+
 // The random number is a js implementation of the Xorshift PRNG
 var randseed = new Array(4); // Xorshift: [x, y, z, w] 32 bit values
 
@@ -26,12 +29,11 @@ function createColor() {
     //saturation is the whole color spectrum
     var h = Math.floor(rand() * 360);
     //saturation goes from 40 to 100, it avoids greyish colors
-    var s = rand() * 60 + 40 + '%';
+    var s = rand() * 60 + 40;
     //lightness can be anything from 0 to 100, but probabilities are a bell curve around 50%
-    var l = (rand() + rand() + rand() + rand()) * 25 + '%';
+    var l = (rand() + rand() + rand() + rand()) * 25 ;
 
-    var color = 'hsl(' + h + ',' + s + ',' + l + ')';
-    return color;
+    return [h / 360,s / 100,l / 100];
 }
 
 function createImageData(size) {
@@ -62,60 +64,42 @@ function createImageData(size) {
 }
 
 function buildOpts(opts) {
-    var newOpts = {};
-    const seed = opts.seed || Math.floor(Math.random() * Math.pow(10, 16)).toString(16);
+    if (!opts.seed) {
+      throw 'No seed provided'
+    }
 
-    seedrand(seed);
+    seedrand(opts.seed);
 
-    newOpts.size = opts.size || 8;
-    newOpts.scale = opts.scale || 4;
-    newOpts.seed = seed;
-    newOpts.color = opts.color || createColor();
-    newOpts.bgcolor = opts.bgcolor || createColor();
-    newOpts.spotcolor = opts.spotcolor || createColor();
-
-    return newOpts;
+    return {
+      size: 8,
+      scale: 16,
+      color: createColor(),
+      bgcolor: createColor(),
+      spotcolor: createColor(),
+      ...opts
+    }
 }
 
-function renderIcon(opts, canvas) {
-    opts = buildOpts(opts || {});
-    console.log(opts, canvas);
+export function toDataUrl(address) {
+    const opts = buildOpts({seed: address.toLowerCase()});
 
-    var imageData = createImageData(opts.size);
-    var width = Math.sqrt(imageData.length);
+    const imageData = createImageData(opts.size);
+    const width = Math.sqrt(imageData.length);
 
-    canvas.width = canvas.height = opts.size * opts.scale;
-
-    var cc = canvas.getContext('2d');
-    cc.fillStyle = opts.bgcolor;
-    cc.fillRect(0, 0, canvas.width, canvas.height);
-    cc.fillStyle = opts.color;
+    const p = new PNG(opts.size*opts.scale, opts.size*opts.scale, 3)
+    const bgcolor = p.color(...hsl2rgb(...opts.bgcolor))
+    const color = p.color(...hsl2rgb(...opts.color))
+    const spotcolor = p.color(...hsl2rgb(...opts.spotcolor))
 
     for (var i = 0; i < imageData.length; i++) {
+        var row = Math.floor(i / width);
+        var col = i % width;
         // if data is 0, leave the background
         if (imageData[i]) {
-            var row = Math.floor(i / width);
-            var col = i % width;
-
             // if data is 2, choose spot color, if 1 choose foreground
-            cc.fillStyle = imageData[i] == 1 ? opts.color : opts.spotcolor;
-
-            cc.fillRect(col * opts.scale, row * opts.scale, opts.scale, opts.scale);
+            const pngColor = imageData[i] == 1 ? color : spotcolor;
+            p.fillRect(col * opts.scale, row * opts.scale, opts.scale, opts.scale, pngColor);
         }
     }
-    return canvas;
+    return `data:image/png;base64,${p.getBase64()}`;
 }
-
-function createIcon(opts) {
-    opts = buildOpts(opts || {});
-    var canvas = document.createElement('canvas');
-
-    renderIcon(opts, canvas);
-
-    return canvas;
-}
-
-export default {
-    create: createIcon,
-    render: renderIcon
-};
