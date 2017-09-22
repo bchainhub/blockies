@@ -70,14 +70,13 @@ function buildOpts(opts) {
 
     seedrand(opts.seed);
 
-    return {
+    return Object.assign({
       size: 8,
       scale: 16,
       color: createColor(),
       bgcolor: createColor(),
       spotcolor: createColor(),
-      ...opts
-    }
+    }, opts)
 }
 
 export function toDataUrl(address) {
