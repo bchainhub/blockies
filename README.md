@@ -2,7 +2,7 @@
 
 A tiny library for generating blocky identicons.
 
-![Sample blockies image](sample.png "Blockies")
+![Sample blockies image](samples/sample.png)
 
 ## Use
 
@@ -10,7 +10,7 @@ A tiny library for generating blocky identicons.
 import {toDataUrl} from 'blockies';
 
 const img = new Image() ;
-img.src = blockies.toDataUrl('0x7cB57B5A97eAbe94205C07890BE4c1aD31E486A8');
+img.src = blockies.toDataUrl('cb381b46c1ed8030d7cf7affe5bff470f068c5ea3498');
 
 document.body.appendChild(img);
 ```

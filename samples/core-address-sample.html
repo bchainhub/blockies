@@ -14,12 +14,10 @@
 </head>
 <body>
     <div id="icon"></div>
-    <script src="blockies.js"></script>
+    <script type="module" src="./dist/blockies.js"></script>
     <script>
-
-        var address = '0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359';
+        var address = 'cb381b46c1ed8030d7cf7affe5bff470f068c5ea3498';
         var icon = document.getElementById('icon');
         icon.style.backgroundImage = 'url(' + blockies.create({ seed:address ,size: 8,scale: 16}).toDataURL()+')'
-
     </script>
 </body>
